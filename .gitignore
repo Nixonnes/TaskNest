@@ -1,0 +1,9 @@
+# PHP
+*.log
+*.cache
+vendor/
+node_modules/
+
+# IDE
+.idea/
+.vscode/
