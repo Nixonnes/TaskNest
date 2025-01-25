@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-class TaskRepository
+class TaskRepository extends Repository
 {
 
 }

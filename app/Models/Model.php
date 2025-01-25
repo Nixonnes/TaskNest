@@ -2,7 +2,31 @@
 
 namespace App\Models;
 
-class Model
-{
+use Core\Database;
 
+abstract class Model
+{
+    protected Database $db;
+    protected static array $fillable = [];
+    protected static string $table = '';
+
+    public static function fill(array $data): array
+    {
+        $filteredData = array_filter($data, function($key){
+            return in_array($key, static::$fillable);
+        }, ARRAY_FILTER_USE_KEY);
+        return $filteredData;
+    }
+    public function save(array $data)
+    {
+        $data = static::fill($data);
+
+        $columns = implode(',', array_keys($data));
+        $values = implode(',', array_map(function($value) {
+            return "'$value'";
+        },$data));
+
+        $sql = "INSERT INTO " . static::$table . " ($columns) VALUES ($values)";
+        return $this->db->query($sql);
+    }
 }

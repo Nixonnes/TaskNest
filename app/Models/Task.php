@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-class Task
+class Task extends Model
 {
-
+    protected static string $table = 'tasks';
 }
