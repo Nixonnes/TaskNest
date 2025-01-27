@@ -11,7 +11,8 @@
         "phpmailer/phpmailer": "^6.9",
         "php-di/php-di": "^7.0",
         "symfony/var-dumper": "^7.2",
-      "ext-pdo": "*"
+      "ext-pdo": "*",
+      "ext-xdebug": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^11.5"

@@ -3,8 +3,13 @@
 namespace Core;
 
 use DI\Container;
+use DI\DependencyException;
+use DI\NotFoundException;
 use Exception;
 
+/**
+ * Класс Router предоставляет методы для обработки маршрутов.
+ */
 class Router
 {
     private array $middleware = [];
@@ -18,6 +23,13 @@ class Router
         $this->request = $request;
     }
 
+    /**
+     * Добавляет маршрут.
+     * @param string $method
+     * @param string $path
+     * @param $action
+     * @return void
+     */
     protected function addRoute(string $method, string $path, $action): void
     {
         $method = strtoupper($method);
@@ -37,26 +49,51 @@ class Router
                 'action' => $action];
     }
 
+    /**
+     * Добавляет маршрут GET.
+     * @param string $path
+     * @param $action
+     * @return void
+     */
     public function get(string $path, $action): void
     {
         $this->addRoute('GET', $path, $action);
     }
-
+    /**
+     * Добавляет маршрут POST.
+     * @param string $path
+     * @param $action
+     * @return void
+     */
     public function post(string $path, $action): void
     {
         $this->addRoute('POST', $path, $action);
     }
-
+    /**
+     * Добавляет маршрут PUT.
+     * @param string $path
+     * @param $action
+     * @return void
+     */
     public function put(string $path, $action): void
     {
         $this->addRoute('PUT', $path, $action);
     }
-
+    /**
+     * Добавляет маршрут DELETE.
+     * @param string $path
+     * @param $action
+     * @return void
+     */
     public function delete(string $path, $action): void
     {
         $this->addRoute('DELETE', $path, $action);
     }
 
+    /**
+     * Выводит список маршрутов
+     * @return void
+     */
     public function listRoutes(): void
     {
         echo "<pre>";
@@ -73,6 +110,7 @@ class Router
 
 
     /**
+     * Обрабатывает запрос.
      * @throws Exception
      */
     public function dispatch(string $method, string $path)
@@ -90,7 +128,17 @@ class Router
         }
         throw new Exception('Route not found', 404);
     }
-    private function handleActionWithParams($action, $params)
+
+    /**
+     * Обрабатывает действие с параметрами.
+     * @param $action
+     * @param $params
+     * @return mixed
+     * @throws DependencyException
+     * @throws NotFoundException
+     * @throws Exception
+     */
+    private function handleActionWithParams($action, $params): mixed
     {
         if (is_callable($action)) {
             return call_user_func_array($action, $params);

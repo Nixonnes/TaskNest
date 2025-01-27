@@ -12,11 +12,15 @@ class TaskController extends Controller
         // Родительский конструктор будет автоматически вызываться и внедрять модель
         parent::__construct($task,$view);
     }
+
+    /**
+     * @throws \Exception
+     */
     public function index(): void
     {
-        View::render('tasks.index');
+        View::render('tasks.index', ['tasks' => '1.Сделать репозиторий']);
     }
-    public function show($id)
+    public function show($id): void
     {
         echo $id;
     }

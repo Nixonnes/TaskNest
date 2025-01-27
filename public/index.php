@@ -12,7 +12,6 @@ $request = $container->get(\Core\Request::class);
 require_once __DIR__ . '/../app/Routes/web.php';
 
 
-
 try {
     $response = $router->dispatch(\Core\Request::method(), \Core\Request::uri());
 } catch (Exception $e) {
@@ -25,3 +24,5 @@ if ($response instanceof \Core\Response) {
     echo $response;
 }
 //$router->listRoutes();
+$migration = $container->get(\Core\Migration::class);
+$migration->runMigrations();

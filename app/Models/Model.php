@@ -4,12 +4,20 @@ namespace App\Models;
 
 use Core\Database;
 
+/**
+ * Класс Model предоставляет методы для получения и обработки данных
+ */
 abstract class Model
 {
     protected Database $db;
     protected static array $fillable = [];
     protected static string $table = '';
 
+    /**
+     * Заполняет массив данными, которые присутствуют в массиве $fillable
+     * @param array $data
+     * @return array
+     */
     public static function fill(array $data): array
     {
         $filteredData = array_filter($data, function($key){

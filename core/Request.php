@@ -1,49 +1,99 @@
 <?php
 
 namespace Core;
-
+/**
+ * Класс Request предоставляет методы для работы с запросами.
+ * Он позволяет получить URI, метод запроса, параметры запроса, заголовки и тело запроса
+ */
 class Request
 {
+    /**
+     * @return string URI запроса
+     */
     public static function uri(): string
     {
         return parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     }
 
+    /**
+     * @return string Метод запроса
+     */
     public static function method(): string
     {
         return $_SERVER['REQUEST_METHOD'];
     }
+
+    /**
+     * Возвращает параметр запроса по ключу
+     * @param string $key Ключ
+     * @return string|null
+     */
     public function getParam(string $key): ?string
     {
         return $_GET[$key] ?? null;
     }
-    public function getPost($key)
+
+    /**
+     * Получает значение из массива $_POST по ключу
+     * @param string $key Ключ
+     * @return mixed|string
+     */
+    public function getPost(string $key): mixed
     {
         return $_POST[$key] ?? '';
     }
-    public function getHeader($key)
+
+    /**
+     * Получает заголовок по ключу
+     * @param string $key Ключ
+     * @return mixed|null
+     */
+    public function getHeader(string $key): mixed
     {
         return getallheaders()[$key] ?? null;
     }
-    public function get()
+
+    /**
+     * Возвращает массив параметров GET запроса
+     * @return array|null
+     */
+    public function get(): ?array
     {
         return $_GET ?? null;
     }
-    public function post()
+    /**
+     * Возвращает массив параметров POST запроса
+     * @return array|null
+     */
+    public function post(): ?array
     {
         return $_POST ?? null;
     }
+
+    /**
+     * Возвращает массив заголовков
+     * @return array
+     */
     public function getHeaders(): array
     {
         return getallheaders() ?? [];
     }
+
+    /**
+     * Проверяет, является ли запрос POST
+     * @return bool
+     */
     public function isPost(): bool
     {
-        return $this->method() === 'POST';
+        return static::method() === 'POST';
     }
 
+    /**
+     * Проверяет, является ли запрос GET
+     * @return bool
+     */
     public function isGet(): bool
     {
-        return $this->method() === 'GET';
+        return static::method() === 'GET';
     }
 }

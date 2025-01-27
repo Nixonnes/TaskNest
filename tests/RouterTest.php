@@ -1,16 +1,20 @@
 <?php
 
 use App\Controllers\UserController;
+use Core\Router;
+use DI\Container;
+use PHPUnit\Framework\TestCase;
 
-class RouterTest extends \PHPUnit\Framework\TestCase
+class RouterTest extends TestCase
 {
-    private \Core\Router $router;
-    private \DI\Container $container;
+    private Router $router;
+    private Container $container;
 
     protected function setup(): void
     {
-        $this->container = new \DI\Container();
-        $this->router = new \Core\Router($this->container);
+        $this->container = new Container();
+        $this->request = $this->container->get('Core\Request');
+        $this->router = new Router($this->container, $this->request);
 
         // Регистрируем маршруты для тестирования
         $this->router->get('/users/{id}', [UserController::class, 'show']);
@@ -26,6 +30,10 @@ class RouterTest extends \PHPUnit\Framework\TestCase
         $this->assertStringContainsString("/users/{id}", $output);
         $this->assertStringContainsString('/login', $output);
     }
+
+    /**
+     * @throws Exception
+     */
     public function testDispatchValidRoute()
     {
         // Протестируем правильную работу маршрута
@@ -35,6 +43,10 @@ class RouterTest extends \PHPUnit\Framework\TestCase
         $this->assertStringContainsString('User with id 1', $responseContent);
 
     }
+
+    /**
+     * @throws Exception
+     */
     public function testDispatchInvalidRoute()
     {
         // Протестируем неправильный маршрут

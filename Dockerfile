@@ -9,6 +9,17 @@ RUN apt-get update && apt-get install -y \
     curl \
     && docker-php-ext-install pdo pdo_mysql
 
+ENV PHP_IDE_CONFIG "serverName=docker"
+    # Устанавливаем Xdebug
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
+
+# Копируем файл конфигурации Xdebug
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
+RUN install-php-extensions xdebug
+ENV PHP_IDE_CONFIG 'serverName=docker'
+COPY xdebug.ini /usr/local/etc/php/conf.d/
+
 # Установка Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
