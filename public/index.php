@@ -4,6 +4,8 @@ use Core\Session;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '../../config/config.php';
 require_once __DIR__ . '/../config/dotenv.php';
+
+
 $container = (require __DIR__ . '/../config/di.php')();
 Session::start();
 $taskService = $container->get(\App\Services\TaskService::class);

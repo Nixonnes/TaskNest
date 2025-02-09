@@ -20,8 +20,14 @@ h1,h2,h3,h4,h5,h6{
     font-family: "Poppins","PT Sans";
     font-weight: 600;
 }
+a {
+    text-decoration: none;
+    color: inherit;
+}
 .wrapper {
     height:100vh;
+    display:flex;
+    flex-direction: column;
 }
 .app {
     display: flex;
@@ -33,6 +39,10 @@ h1,h2,h3,h4,h5,h6{
     font-family: 'Roboto',"PT Sans";
     background-color: #E0E0E0;
 }
+.auth-app {
+    display:flex;
+    min-height: 100%;
+}
 header {
     display: flex;
     justify-content: flex-end;
@@ -42,6 +52,10 @@ header {
     align-items: center;
     text-transform: uppercase;
     font-weight: 600;
+}
+input:focus {
+    border-color: #f3b700; /* Жёлтый цвет для акцента */
+    box-shadow: 0 0 5px rgba(243, 183, 0, 0.5);
 }
 nav ul {
     display: flex;
@@ -54,12 +68,19 @@ nav li {
     font-size: 1.5rem;
     margin-right: 2.5rem;
 }
-main {
+/* Стандартное поведение тега main */
+.welcome_main {
     min-height: 100%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex:1;
+
+}
+/* Кастомное поведение тега main */
+.main {
+    margin-left: 4vw;
+    max-width: 60vw;
 
 }
 .hero{
@@ -128,4 +149,88 @@ footer {
 .cta-button.login:hover {
     background-color: #000000;
     color: #ffffff;
+}
+.reg-place {
+     margin-top:12px;
+     display:flex;
+     flex-direction: column;
+     align-items: center;
+     width:440px;
+     height:540px;
+    background: linear-gradient(to bottom, #f4f4f9, #e9ecef);
+     border-radius: 8px;
+     border:1px solid rgba(0, 0, 0, 0.26);
+    padding: 30px;
+ }
+.error-message {
+    height:14px;
+    font-size:12px;
+    margin-top:5px;
+}
+.reg-field {
+    padding:3px;
+}
+.auth-place {
+    margin-top:12px;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    width:450px;
+    height:390px;
+    background: linear-gradient(to bottom, #f4f4f9, #e9ecef);
+    border-radius: 8px;
+    border:1px solid rgba(0, 0, 0, 0.26);
+    padding:30px;
+}
+.auth-field {
+    margin-top:12px;
+}
+.input-text {
+    width: 100%;
+    height: 40px;
+    border-radius: 8px;
+    border:1px solid rgba(0, 0, 0, 0.12);
+    margin-top:8px;
+    padding:12px;
+    font-size:16px;
+
+}
+.label-text {
+    margin:7px;
+    font-size:18px;
+}
+.primary_btn {
+    margin-top:22px;
+    background-color: #eacc0b;
+    border:1px solid rgba(0, 0, 0, 0.27);
+    padding:8px;
+    font-size: 20px;
+    border-radius: 9px;
+    width:100%;
+    font-weight: 600;
+    cursor: pointer;
+}
+.primary_btn:hover{
+    background-color: #9c8908;
+    transition: ease-out 0.3s;
+}
+.reg_header {
+    margin-bottom:20px;
+}
+.main_reg {
+    min-height: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex:1;
+    flex-direction: column;
+}
+.to-reg {
+    text-decoration: underline;
+    margin-top:16px;
+}
+.sidebar {
+    min-width:24vw;
+    height:100%;
+    font-weight:600;
 }

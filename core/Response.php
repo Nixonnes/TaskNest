@@ -2,6 +2,8 @@
 
 namespace Core;
 
+use JetBrains\PhpStorm\NoReturn;
+
 /**
  * Класс Response предоставляет методы для работы с HTTP-ответом.
  */
@@ -11,9 +13,10 @@ class Response
     protected int $statusCode;
     protected array $headers = [];
 
-    public function __construct()
+    public function __construct($content = '', $statusCode = 200)
     {
-        $this->statusCode = 200;
+        $this->content = $content;
+        $this->statusCode = $statusCode;
     }
 
     /**
@@ -78,5 +81,18 @@ class Response
     public function getHeaders(): array
     {
         return $this->headers;
+    }
+    #[NoReturn] public function json(array $data, int $statusCode = 200): void
+    {
+        header('Content-Type: application/json');
+        http_response_code($statusCode);
+        echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        exit;
+    }
+    #[NoReturn] public function redirect(string $url, int $statusCode = 302): void
+    {
+        header("Location: $url", true, $statusCode);
+        exit;
+
     }
 }

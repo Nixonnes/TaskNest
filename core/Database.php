@@ -6,6 +6,7 @@ use Exception;
 use Monolog\Logger;
 use PDO;
 use PDOStatement;
+use Psr\Log\LoggerInterface;
 
 /**
  * Класс Database предоставляет методы для работы с базой данных.
@@ -13,22 +14,21 @@ use PDOStatement;
 class Database implements DatabaseInterface
 {
     private PDO $connection;
-    private string $dbType;
-    private string $host;
-    private string $dbName;
+    protected DsnGenerator $dsnGenerator;
     private string $username;
     private string $password;
-    private Logger $logger;
+    private LoggerInterface $logger;
 
-    public function __construct(string $dbType, string $host, $dbName, string $username, $password,Logger $logger)
+    /**
+     * @throws Exception
+     */
+    public function __construct(string $username,string $password,DsnGenerator $dsnGenerator, LoggerInterface $logger)
     {
-        $this->dbType = $dbType;
-        $this->host = $host;
-        $this->dbName = $dbName;
-        $this->username = $username;
-        $this->password = $password;
+
         $this->logger = $logger;
-        $this->connect();
+        $this->dsnGenerator = $dsnGenerator;
+        $this->connect($username,$password);
+
     }
 
     /**
@@ -36,11 +36,11 @@ class Database implements DatabaseInterface
      * @return void
      * @throws Exception
      */
-    private function connect(): void
+    private function connect(string $username,string $password): void
     {
         try{
             $dsn = $this->getDsn();
-            $this->connection = new PDO( $dsn, $this->username, $this->password);
+            $this->connection = new PDO( $dsn, $username, $password);
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
             $this->logger->info('Соединение с базой данных установлено.');
@@ -56,14 +56,7 @@ class Database implements DatabaseInterface
      */
     private function getDsn(): string
     {
-        switch($this->dbType) {
-            case 'mysql':
-                return "mysql:host=$this->host;dbname=$this->dbName";
-            case 'pqsql':
-                return "pgsql:host=$this->host;dbname=$this->dbName";
-            default:
-                throw new Exception("Unsupported database type: $this->dbType");
-        }
+        return $this->dsnGenerator->getDsn();
     }
 
     /**
@@ -85,7 +78,7 @@ class Database implements DatabaseInterface
      * @param array $params
      * @return array
      */
-    public function select(string $sql, array $params = []): array
+    public function select(string $sql, array $params = []): array|object
     {
         $stmt = $this->query($sql, $params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -100,6 +93,7 @@ class Database implements DatabaseInterface
     public function insert(string $sql, array $params = []): int
     {
         $stmt = $this->query($sql, $params);
+        $this->logger->info('Inserted data', ['sql' => $sql, 'params' => $params]);
         return $this->connection->lastInsertId();
     }
 
@@ -161,5 +155,9 @@ class Database implements DatabaseInterface
     public function getConnection(): PDO
     {
         return $this->connection;
+    }
+    public function lastInsertId(): string
+    {
+        return $this->connection->lastInsertId();
     }
 }

@@ -22,15 +22,15 @@
                 </nav>
             </div>
         </header>
-        <main>
+        <main class="welcome_main">
             <div class="hero">
                 <h1 class="hero_head">
                     <span class="task">Task</span><span class="nest">Nest</span>
                 </h1>
                 <p class="hero_text">Место, где задачи превращаются в достижения!</p>
                 <div class="cta-container">
-                    <button class="cta-button register">Регистрация</button>
-                    <button class="cta-button login">Войти</button>
+                    <a class="cta-button register" href="/register">Регистрация</a>
+                    <a class="cta-button login" href="/login">Войти</a>
                 </div>
             </div>
         </main>

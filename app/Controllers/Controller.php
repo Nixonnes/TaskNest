@@ -16,6 +16,5 @@ abstract class Controller
         $this->view = $view;
     }
 
-    // Этот метод будет общим для всех контроллеров (например, вывод всех объектов модели)
-    abstract public function index();
+
 }

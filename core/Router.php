@@ -30,23 +30,29 @@ class Router
      * @param $action
      * @return void
      */
-    protected function addRoute(string $method, string $path, $action): void
+    protected function addRoute(string $method, string $path, $action, array $middleware = []): void
     {
         $method = strtoupper($method);
-        $path = preg_replace_callback('#\{([a-zA-Z0-9_]+)(?::([^\}]+))?\}#', function($matches) {
-            if(isset($matches[2]) && $matches[2] != '') {
+        $path = preg_replace_callback('#\{([a-zA-Z0-9_]+)(?::([^\}]+))?\}#', function ($matches) {
+            if (isset($matches[2]) && $matches[2] != '') {
                 return '(' . $matches[2] . ')';
             }
+            if ($matches[1] === 'id') { // Если параметр называется "id", он должен быть числом
+                return '(\d+)';
+            }
             return '([^/]+)';
-},
- $path);
+        }, $path);
+
         if (is_string($action) && strpos($action, '@') !== false) {
-            [$controller, $action] = explode('@', $action, 2); // Разделяем строку на контроллер и метод
-            $action = [$controller, $action]; // Формируем массив
+            [$controller, $action] = explode('@', $action, 2);
+            $action = [$controller, $action];
         }
-        $this->routes[$method][] =
-            ['path' =>  $path,
-                'action' => $action];
+
+        $this->routes[$method][] = [
+            'path' => $path,
+            'action' => $action,
+            'middleware' => $middleware
+        ];
     }
 
     /**
@@ -55,9 +61,9 @@ class Router
      * @param $action
      * @return void
      */
-    public function get(string $path, $action): void
+    public function get(string $path, $action,$middleware = []): void
     {
-        $this->addRoute('GET', $path, $action);
+        $this->addRoute('GET', $path, $action, $middleware);
     }
     /**
      * Добавляет маршрут POST.
@@ -65,9 +71,9 @@ class Router
      * @param $action
      * @return void
      */
-    public function post(string $path, $action): void
+    public function post(string $path, $action,$middleware = []): void
     {
-        $this->addRoute('POST', $path, $action);
+        $this->addRoute('POST', $path, $action,$middleware);
     }
     /**
      * Добавляет маршрут PUT.
@@ -75,9 +81,9 @@ class Router
      * @param $action
      * @return void
      */
-    public function put(string $path, $action): void
+    public function put(string $path, $action,$middleware = []): void
     {
-        $this->addRoute('PUT', $path, $action);
+        $this->addRoute('PUT', $path, $action,$middleware);
     }
     /**
      * Добавляет маршрут DELETE.
@@ -85,9 +91,9 @@ class Router
      * @param $action
      * @return void
      */
-    public function delete(string $path, $action): void
+    public function delete(string $path, $action,$middleware = []): void
     {
-        $this->addRoute('DELETE', $path, $action);
+        $this->addRoute('DELETE', $path, $action,$middleware);
     }
 
     /**
@@ -123,6 +129,20 @@ class Router
         foreach ($this->routes[$method] as $route) {
             if (preg_match('#^' . $route['path'] . '$#', $path, $matches)) {
                 array_shift($matches);
+
+                if(!empty($route['middleware'])) {
+                    foreach($route['middleware'] as $middleware) {
+                        $middleware = 'App\\Middlewares\\' . $middleware;
+                        $middlewareInstance = new $middleware();
+                        $response = $middlewareInstance->handle(new Request(),function($request) {
+                            return $request;
+                        });
+
+                        if($response instanceof Response) {
+                            return $response;
+                        }
+                    }
+                }
                 return $this->handleActionWithParams($route['action'], $matches);
             }
         }
@@ -144,7 +164,13 @@ class Router
             return call_user_func_array($action, $params);
         }
         if (is_array($action) && isset($action[0], $action[1])) {
-            $controller = $this->container->get('App\Controllers\\'.$action[0]);
+            if(str_contains($action[0], 'App\Controllers\\')) {
+                $controller = $this->container->get($action[0]);
+            }
+            else {
+                $controller = $this->container->get('App\\Controllers\\'. $action[0]);
+            }
+
             return call_user_func_array([$controller, $action[1]], $params);
         }
         if (is_string($action) && strpos($action, '@') !== false) {

@@ -2,13 +2,18 @@
 
 global $router;
 
+use App\Controllers\TaskController;
 use App\Controllers\UserController;
+use App\Controllers\AuthController;
 
 $router->get('/', function() {
      (new \Core\View())->render('welcome');
-});
-$router->get('/tasks', 'TaskController@index');
-$router->get('/tasks/{id}', [\App\Controllers\TaskController::class, 'show']);
-$router->get('/register', [UserController::class, 'register']);
-$router->get('/login', [UserController::class, 'login']);
+}, ['GuestMiddleware']);
+$router->get('/tasks', 'TaskController@index', ['AuthMiddleware']);
+$router->get('/tasks/{id}', [TaskController::class, 'show']);
+$router->get('/register', [AuthController::class, 'showRegisterForm']);
+$router->post('/register', [AuthController::class, 'register']);
+$router->get('/users', [UserController::class, 'index'], ['AuthMiddleware']);
+$router->get('/login', [AuthController::class, 'showLoginForm']);
+$router->post('/login', [AuthController::class, 'login']);
 $router->get('/users/{id}', [UserController::class, 'show']);

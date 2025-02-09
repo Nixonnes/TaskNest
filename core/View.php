@@ -9,21 +9,21 @@ use Exception;
  */
 class View
 {
-    protected static string $viewPath;
+    protected string $viewPath;
 
     public function __construct($viewPath = VIEWS . '/')
     {
-        static::$viewPath = $viewPath;
+        $this->viewPath = $viewPath;
     }
 
     /**
      * Метод для отображения шаблона
      * @throws Exception
      */
-    public static function render(string $template, array $data=[]): void
+    public function render(string $template, array $data=[]): void
     {
         // Проверка существования файла шаблона
-        $file = static::$viewPath . str_replace('.', '/', $template) . '.php';
+        $file = $this->viewPath . str_replace('.', '/', $template) . '.php';
         if (!file_exists($file)) {
             throw new Exception("View template '$template' not found.");
         }

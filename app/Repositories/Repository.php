@@ -2,28 +2,24 @@
 
 namespace App\Repositories;
 
-use Core\Database;
 use Core\DatabaseInterface;
 use Core\RepositoryInterface;
 use DI\Container;
 use DI\DependencyException;
 use DI\NotFoundException;
-use PDO;
+use Exception;
 
 abstract class Repository implements RepositoryInterface
 {
-    protected \Core\Database $db;
+    protected \Core\DatabaseInterface $db;
     protected Container $container;
     protected string $table;
 
-    /**
-     * @throws DependencyException
-     * @throws NotFoundException
-     */
-    public function __construct(Container $container)
+
+    public function __construct(DatabaseInterface $db)
     {
-        $this->container = $container;
-        $this->db = $this->container->get(DatabaseInterface::class);
+
+        $this->db = $db;
     }
 
     public function find(int $id): ?object
@@ -35,34 +31,34 @@ abstract class Repository implements RepositoryInterface
     public function findAll(): array
     {
         $stmt = $this->db->select("SELECT * FROM {$this->table}");
-        return $stmt->fetchAll();
+        return $stmt;
     }
 
-    public function save(object $model): void
+    public function save(object $model): object
     {
-        $propepties = get_object_vars($model);
-        $reflect = new \ReflectionObject($model);
-        foreach($reflect->getProperties() as $property) {
-            $property->setAccessible(true);
-            $propepties[$property->getName()] = $property->getValue($model);
+        $data = $model->getAttributes();
+        if (empty($data)) {
+            throw new Exception("Нет данных для вставки в таблицу.");
         }
-        $columns = implode(',', array_keys($propepties));
-        $values = implode(',', array_map(fn($key) => ":$key", array_keys($propepties)));
-
-        if (isset($propepties['id'])) {
-            // Обновление записи
-            $updates = [];
-            foreach ($propepties as $key => $value) {
-                if ($key !== 'id') {
-                    $updates[] = "$key = :$key";
-                }
-            }
-            $updatesString = implode(',', $updates);
-            $stmt = $this->db->update("UPDATE {$this->table} SET $updatesString WHERE id = :id", $propepties);
+        if($model->id) {
+            $fields = array_map(fn($key) => "$key = :$key", array_keys($data));
+            $sql = "UPDATE {$this->table} SET " . implode(", ", $fields) . " WHERE id = :id";
+            $data['id'] = $model->id;
         } else {
-            $stmt = $this->db->insert("INSERT INTO {$this->table} ($columns) VALUES ($values)", $propepties);
+            // Создание новой записи
+            $columns = implode(", ", array_keys($data));
+            $placeholders = ":" . implode(", :", array_keys($data));
+            $sql = "INSERT INTO {$this->table} ({$columns}) VALUES ({$placeholders})";
         }
-
+        $stmt = $this->db->getConnection()->prepare($sql);
+        $stmt->bindParam(':username', $data['username']);
+        $stmt->bindParam(':email', $data['email']);
+        $stmt->bindParam(':password', $data['password']);
+        $stmt->execute($data);
+        if(!$model->id) {
+            $model->id = $this->db->lastInsertId();
+        }
+        return $model;
     }
 
     public function delete(int $id): void

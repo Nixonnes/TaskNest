@@ -18,7 +18,7 @@ class TaskController extends Controller
      */
     public function index(): void
     {
-        View::render('tasks.index', ['tasks' => '1.Сделать репозиторий']);
+        (new \Core\View)->render('tasks.index', ['tasks' => '1.Сделать репозиторий']);
     }
     public function show($id): void
     {

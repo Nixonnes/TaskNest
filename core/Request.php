@@ -7,6 +7,21 @@ namespace Core;
  */
 class Request
 {
+    private array $data = [];
+
+    public function __construct()
+    {
+        $this->data = array_merge($_GET, $_POST);
+
+        // Если запрос JSON, декодируем его
+        if ($this->isJson()) {
+            $jsonData = json_decode(file_get_contents('php://input'), true);
+            if (is_array($jsonData)) {
+                $this->data = array_merge($this->data, $jsonData);
+            }
+        }
+    }
+
     /**
      * @return string URI запроса
      */
@@ -95,5 +110,13 @@ class Request
     public function isGet(): bool
     {
         return static::method() === 'GET';
+    }
+    private function isJson(): bool
+    {
+        return isset($_SERVER['CONTENT_TYPE']) && str_contains($_SERVER['CONTENT_TYPE'], 'application/json');
+    }
+    public function all(): array
+    {
+        return $this->data;
     }
 }

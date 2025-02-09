@@ -2,39 +2,47 @@
 
 namespace App\Models;
 
-use Core\Database;
-
 /**
  * Класс Model предоставляет методы для получения и обработки данных
  */
 abstract class Model
 {
-    protected Database $db;
-    protected static array $fillable = [];
+    protected array $fillable = [];
+    protected array $attributes = [];
+    protected ?int $id = null;
     protected static string $table = '';
+
 
     /**
      * Заполняет массив данными, которые присутствуют в массиве $fillable
      * @param array $data
-     * @return array
+     * @return Model
      */
-    public static function fill(array $data): array
+    public function fill(array $attributes): Model
     {
-        $filteredData = array_filter($data, function($key){
-            return in_array($key, static::$fillable);
-        }, ARRAY_FILTER_USE_KEY);
-        return $filteredData;
+        foreach ($attributes as $key => $value) {
+            if (in_array($key, $this->fillable)) {
+                $this->attributes[$key] = $value;
+            }
+        }
+        return $this;
     }
-    public function save(array $data)
+
+    public function getAttributes(): array
     {
-        $data = static::fill($data);
+        return $this->attributes;
+    }
 
-        $columns = implode(',', array_keys($data));
-        $values = implode(',', array_map(function($value) {
-            return "'$value'";
-        },$data));
-
-        $sql = "INSERT INTO " . static::$table . " ($columns) VALUES ($values)";
-        return $this->db->query($sql);
+    public function getAttribute($name): string
+    {
+        return $this->getAttributes()[$name];
+    }
+    public function setAttribute($name, $value): void
+    {
+        $this->attributes[$name] = $value;
+    }
+    public function getId()
+    {
+        return $this->id;
     }
 }
